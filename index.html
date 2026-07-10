@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>for Lelo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Special+Elite&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   CONTROL CENTER — this is where you change the important stuff
+   (the actual content is set further down in the <script> section,
+   look for the "SETTINGS" comment)
+   ========================================================= */
+
+:root{
+  --bg-0:#0b0509;
+  --bg-1:#210b17;
+  --bg-2:#331221;
+  --ink:#fbeef1;
+  --ink-dim:#dcb7c0;
+  --accent:#ff8fab;
+  --accent-deep:#c9184a;
+  --accent-2:#ffc2d1;
+  --glass:rgba(255,255,255,0.045);
+  --glass-border:rgba(255,143,171,0.25);
+}
+
+*{box-sizing:border-box;}
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  background:var(--bg-0);
+  color:var(--ink);
+  overflow:hidden;
+  font-family:'Cormorant Garamond', serif;
+  cursor:default;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+
+#bg-canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background:
+    radial-gradient(60% 50% at 50% 15%, rgba(255,143,171,0.16), transparent 60%),
+    radial-gradient(70% 60% at 85% 90%, rgba(201,24,74,0.12), transparent 60%),
+    radial-gradient(70% 60% at 8% 85%, rgba(255,194,209,0.10), transparent 60%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 55%, var(--bg-2));
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:2;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .6s ease;
+  padding:24px;
+  text-align:center;
+}
+.screen.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* ---------- IRIS TRANSITION OVERLAY ---------- */
+#overlay{
+  position:fixed;
+  inset:0;
+  z-index:60;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 50%, var(--bg-2) 0%, var(--bg-0) 70%);
+  clip-path:circle(0% at 50% 50%);
+}
+#overlay.expand{
+  clip-path:circle(150% at 50% 50%);
+  transition:clip-path 1.25s cubic-bezier(.65,0,.35,1);
+}
+#overlay.contract{
+  clip-path:circle(0% at 50% 50%);
+  transition:clip-path 1.25s cubic-bezier(.65,0,.35,1);
+}
+
+/* ---------- Hearts trailing the cursor ---------- */
+.trail-heart{
+  position:fixed;
+  z-index:80;
+  pointer-events:none;
+  color:var(--accent);
+  text-shadow:0 0 10px rgba(255,143,171,0.75), 0 0 22px rgba(201,24,74,0.35);
+  transform:translate(-50%,-50%);
+  animation:heartFloat 1050ms ease-out forwards;
+  will-change:transform, opacity;
+}
+@keyframes heartFloat{
+  0%{
+    opacity:.95;
+    transform:translate(-50%,-50%) scale(.6) rotate(0deg);
+  }
+  100%{
+    opacity:0;
+    transform:translate(calc(-50% + var(--dx)), calc(-50% - 60px)) scale(1.15) rotate(var(--rot));
+  }
+}
+
+/* ================= PROFILE CARD (guns.lol style) ================= */
+
+/* Stage that holds both the spinning vinyl record and the card on top of it */
+.vinyl-stage{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  max-width:380px;
+  width:100%;
+}
+
+/* Spinning vinyl record - sits behind the card, mostly transparent so it
+   blends into the page's own background instead of looking like a sticker.
+   mix-blend-mode:screen makes the black areas of the disc disappear entirely -
+   only the soft pink grooves and label stay faintly visible while spinning. */
+.vinyl-record{
+  position:absolute;
+  width:172%;
+  max-width:640px;
+  aspect-ratio:1 / 1;
+  z-index:0;
+  opacity:.55;
+  mix-blend-mode:screen;
+  pointer-events:none;
+  animation:vinylSpin 10s linear infinite;
+  filter:drop-shadow(0 0 50px rgba(255,143,171,0.18));
+}
+@keyframes vinylSpin{ to{ transform:rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce){
+  .vinyl-record{ animation:none; }
+}
+
+.glow-border{
+  position:relative;
+  z-index:1;
+  border-radius:26px;
+  padding:1.5px;
+  opacity:0;
+  transform:translateY(18px) scale(.97);
+  animation:cardIn 1s cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:.15s;
+  max-width:380px;
+  width:100%;
+}
+@keyframes cardIn{
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+.glow-border::before{
+  content:"";
+  position:absolute;
+  inset:-1.5px;
+  border-radius:26px;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-deep));
+  opacity:.55;
+  z-index:0;
+}
+
+.card{
+  position:relative;
+  z-index:1;
+  border-radius:24.5px;
+  background:linear-gradient(180deg, rgba(42,15,28,0.82), rgba(14,5,9,0.9));
+  backdrop-filter:blur(20px) saturate(130%);
+  -webkit-backdrop-filter:blur(20px) saturate(130%);
+  padding:34px 28px 28px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.views{
+  position:absolute;
+  top:14px;
+  right:18px;
+  font-family:'Sora', sans-serif;
+  font-size:.7rem;
+  letter-spacing:.05em;
+  color:var(--ink-dim);
+  display:flex;
+  align-items:center;
+  gap:4px;
+  opacity:.75;
+}
+
+.avatar{
+  width:88px;
+  height:88px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle at 35% 30%, rgba(255,143,171,0.35), rgba(14,5,9,0.6));
+  border:1px solid rgba(255,143,171,0.35);
+  box-shadow:0 0 30px rgba(201,24,74,0.28);
+  font-size:2.1rem;
+  overflow:hidden;
+  margin-bottom:14px;
+}
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.profile-name{
+  font-family:'Sora', sans-serif;
+  font-weight:700;
+  font-size:1.25rem;
+  letter-spacing:.02em;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--ink);
+}
+.profile-name .badge-icon{
+  font-size:1rem;
+  filter:drop-shadow(0 0 6px rgba(255,143,171,0.7));
+}
+
+.profile-bio{
+  font-family:'Sora', sans-serif;
+  font-size:.85rem;
+  color:var(--ink-dim);
+  margin-top:8px;
+  min-height:1.4em;
+  letter-spacing:.01em;
+}
+.profile-bio .caret{
+  display:inline-block;
+  width:2px;
+  height:.9em;
+  background:var(--accent);
+  margin-left:2px;
+  vertical-align:-2px;
+  animation:blink 1s step-end infinite;
+}
+
+.badges-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  margin-top:16px;
+}
+.badge-pill{
+  font-family:'Sora', sans-serif;
+  font-size:.72rem;
+  letter-spacing:.02em;
+  color:var(--ink);
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:50px;
+  padding:6px 13px;
+  opacity:0;
+  transform:translateY(6px);
+  animation:fadeUp .7s cubic-bezier(.22,1,.36,1) forwards;
+}
+
+/* ---------- Welcome title (above the card) ---------- */
+#screen-welcome .title{
+  font-weight:300;
+  font-size:clamp(2.2rem, 7vw, 4rem);
+  letter-spacing:.04em;
+  margin:0 0 1.8rem 0;
+  cursor:default;
+  user-select:none;
+  color:var(--ink);
+  transition:letter-spacing .8s cubic-bezier(.22,1,.36,1);
+}
+#screen-welcome .title:hover{
+  letter-spacing:.13em;
+}
+#screen-welcome .title span{
+  display:inline-block;
+  opacity:0;
+  filter:blur(12px);
+  transform:translateY(20px);
+  animation:letterIn 1.3s cubic-bezier(.16,1,.3,1) forwards;
+  transition:text-shadow .8s cubic-bezier(.22,1,.36,1), color .8s ease;
+}
+#screen-welcome .title:hover span{
+  color:#ffffff;
+  text-shadow:
+    0 0 14px rgba(255,143,171,0.65),
+    0 0 38px rgba(201,24,74,0.35),
+    0 0 70px rgba(255,143,171,0.2);
+}
+@keyframes letterIn{
+  to{ opacity:1; filter:blur(0); transform:translateY(0); }
+}
+
+.password-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  margin-top:26px;
+  opacity:0;
+  animation:fadeUp 1.3s cubic-bezier(.22,1,.36,1) forwards;
+  animation-delay:1.6s;
+  width:100%;
+}
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(16px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.password-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-radius:50px;
+  padding:8px 8px 8px 26px;
+  box-shadow:0 0 0 0 rgba(255,143,171,0.0);
+  transition:box-shadow .6s cubic-bezier(.22,1,.36,1), border-color .6s cubic-bezier(.22,1,.36,1);
+}
+.password-bar:focus-within{
+  border-color:rgba(255,143,171,0.65);
+  box-shadow:0 0 26px 2px rgba(255,143,171,0.22);
+}
+.password-bar.shake{
+  animation:shake .45s ease;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-8px);}
+  40%{transform:translateX(7px);}
+  60%{transform:translateX(-5px);}
+  80%{transform:translateX(4px);}
+}
+
+.password-bar input{
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--ink);
+  font-family:'Cormorant Garamond', serif;
+  font-size:1.1rem;
+  letter-spacing:.04em;
+  width:min(48vw, 200px);
+  padding:8px 0;
+}
+.password-bar input::placeholder{
+  color:var(--ink-dim);
+  opacity:.7;
+}
+
+.password-bar button{
+  border:none;
+  border-radius:50%;
+  width:40px;
+  height:40px;
+  min-width:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color:#fff;
+  cursor:pointer;
+  transition:transform .45s cubic-bezier(.22,1,.36,1), filter .45s ease;
+}
+.password-bar button:hover{
+  transform:scale(1.07);
+  filter:brightness(1.1);
+}
+.password-bar button:active{
+  transform:scale(.94);
+}
+
+.hint{
+  min-height:1.2em;
+  font-size:.9rem;
+  letter-spacing:.03em;
+  color:var(--accent);
+  opacity:.85;
+  font-family:'Sora', sans-serif;
+}
+
+.forgot-hint{
+  margin-top:10px;
+  font-family:'Sora', sans-serif;
+  font-weight:300;
+  font-size:.66rem;
+  letter-spacing:.03em;
+  color:var(--ink-dim);
+  opacity:.32;
+  transition:opacity .4s ease;
+  cursor:default;
+  user-select:none;
+}
+.forgot-hint:hover{
+  opacity:.6;
+}
+
+/* ================= HEART SCREEN ================= */
+#screen-heart .heart-caption{
+  font-family:'Sora', sans-serif;
+  font-size:.95rem;
+  letter-spacing:.08em;
+  color:var(--ink-dim);
+  margin-bottom:2rem;
+  opacity:.85;
+  transition:opacity .5s ease;
+}
+
+.heart-holder{
+  position:relative;
+  width:min(46vw, 220px);
+  height:min(46vw, 220px);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.heart-holder svg{
+  width:100%;
+  height:100%;
+  overflow:visible;
+  filter:drop-shadow(0 0 20px rgba(255,143,171,0.5)) drop-shadow(0 0 50px rgba(201,24,74,0.25));
+  animation:beat 2.6s cubic-bezier(.45,0,.55,1) infinite;
+  transform-origin:50% 55%;
+}
+@keyframes beat{
+  0%, 100%{transform:scale(1);}
+  50%{transform:scale(1.055);}
+}
+.heart-holder.pulse svg{
+  animation:none;
+}
+.heart-holder .burst{
+  animation:beatPulse .6s cubic-bezier(.22,1,.36,1);
+}
+@keyframes beatPulse{
+  0%{transform:scale(1);}
+  45%{transform:scale(1.2);}
+  100%{transform:scale(1);}
+}
+
+.progress-dots{
+  display:flex;
+  gap:8px;
+  margin-top:2.2rem;
+}
+.progress-dots span{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:rgba(251,238,241,0.16);
+  transition:background .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1);
+}
+.progress-dots span.filled{
+  background:var(--accent);
+  transform:scale(1.25);
+  box-shadow:0 0 10px rgba(255,143,171,0.65);
+}
+
+.spark{
+  position:absolute;
+  pointer-events:none;
+  font-size:1rem;
+  color:var(--accent);
+  animation:sparkFly 1100ms cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes sparkFly{
+  0%{ opacity:1; transform:translate(0,0) scale(.6) rotate(0deg); }
+  100%{ opacity:0; transform:var(--fly) scale(1.05) rotate(140deg); }
+}
+
+/* ================= LETTER SCREEN ================= */
+#screen-letter{
+  overflow-y:auto;
+  padding:60px 20px 150px;
+  /* invisible scrollbar - scrolling still works, the bar just never shows */
+  scrollbar-width:none;        /* Firefox */
+  -ms-overflow-style:none;     /* IE/Edge */
+}
+#screen-letter::-webkit-scrollbar{
+  display:none;                /* Chrome/Safari/Opera */
+  width:0;
+  height:0;
+}
+.paper{
+  max-width:640px;
+  width:100%;
+  background:linear-gradient(180deg, rgba(51,18,33,0.55), rgba(14,5,9,0.55));
+  color:var(--ink);
+  border:1px solid rgba(255,143,171,0.16);
+  border-radius:20px;
+  padding:clamp(30px, 5vw, 64px);
+  text-align:left;
+  font-family:'Special Elite', monospace;
+  box-shadow:0 0 90px rgba(255,143,171,0.06), 0 40px 90px rgba(0,0,0,0.45);
+  backdrop-filter:blur(22px) saturate(120%);
+  -webkit-backdrop-filter:blur(22px) saturate(120%);
+  position:relative;
+  opacity:0;
+  transform:translateY(24px);
+  animation:paperIn 1.4s cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:.5s;
+}
+@keyframes paperIn{
+  to{ opacity:1; transform:translateY(0); }
+}
+.paper h2{
+  margin:0 0 1.4rem 0;
+  font-size:1.05rem;
+  letter-spacing:.08em;
+  font-weight:400;
+  color:var(--ink-dim);
+  text-transform:uppercase;
+}
+#letter-body{
+  white-space:pre-wrap;
+  line-height:1.95;
+  font-size:1.02rem;
+  min-height:2em;
+  color:var(--ink);
+}
+.letter-caret{
+  display:inline-block;
+  width:9px;
+  background:var(--accent);
+  margin-left:2px;
+  animation:blink 1s step-end infinite;
+}
+@keyframes blink{
+  50%{opacity:0;}
+}
+
+.tasks{
+  max-width:640px;
+  width:100%;
+  margin-top:22px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.task-card{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:16px;
+  padding:16px 20px;
+  text-align:left;
+  backdrop-filter:blur(10px);
+  opacity:0;
+  transform:translateY(10px);
+  animation:fadeUp .7s cubic-bezier(.22,1,.36,1) forwards;
+}
+.task-card h3{
+  margin:0 0 4px 0;
+  font-family:'Sora', sans-serif;
+  font-weight:600;
+  font-size:1rem;
+  color:var(--accent);
+  letter-spacing:.02em;
+}
+.task-card p{
+  margin:0;
+  color:var(--ink-dim);
+  font-family:'Cormorant Garamond', serif;
+  font-size:.98rem;
+  line-height:1.5;
+}
+
+/* ================= MUSIC PLAYER (styl paska odtwarzacza) ================= */
+#music-player{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  transform:translate(-50%, 160%);
+  z-index:40;
+  width:min(94vw, 640px);
+  transition:transform .9s cubic-bezier(.16,1,.3,1);
+}
+#music-player.visible{
+  transform:translate(-50%, 0);
+}
+
+.player-bar{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  width:100%;
+  padding:12px 20px;
+  border-radius:22px;
+  background:rgba(11,5,9,0.42);
+  border:1px solid rgba(255,143,171,0.16);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  box-shadow:0 10px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,143,171,0.06);
+}
+
+.player-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+  flex:0 1 220px;
+}
+.player-cover{
+  width:46px;
+  height:46px;
+  border-radius:10px;
+  object-fit:cover;
+  flex-shrink:0;
+  background:rgba(255,143,171,0.12);
+  box-shadow:0 0 12px rgba(255,143,171,0.25);
+}
+.player-meta{
+  min-width:0;
+  text-align:left;
+}
+.player-title{
+  font-family:'Sora', sans-serif;
+  font-size:.86rem;
+  font-weight:600;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  cursor:pointer;
+}
+.player-title:hover{ color:var(--accent); }
+.player-artist{
+  font-family:'Sora', sans-serif;
+  font-size:.74rem;
+  color:var(--ink-dim);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-top:2px;
+}
+.player-add{
+  flex-shrink:0;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  border:1.5px solid var(--ink-dim);
+  background:transparent;
+  color:var(--ink-dim);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Sora', sans-serif;
+  font-size:.85rem;
+  line-height:1;
+  cursor:pointer;
+  transition:border-color .3s ease, color .3s ease, transform .3s ease;
+}
+.player-add:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:scale(1.08);
+}
+
+.player-center{
+  flex:1 1 auto;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+
+.player-controls{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.ctrl{
+  background:transparent;
+  border:none;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--ink-dim);
+  cursor:pointer;
+  transition:color .25s ease, transform .2s ease;
+}
+.ctrl svg{ width:16px; height:16px; }
+.ctrl:hover{ color:var(--ink); transform:scale(1.08); }
+.ctrl.active{ color:var(--accent); }
+.ctrl.play-pause{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color:#fff;
+}
+.ctrl.play-pause svg{ width:14px; height:14px; }
+.ctrl.play-pause:hover{
+  transform:scale(1.07);
+  filter:brightness(1.1);
+}
+
+.player-progress-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  max-width:520px;
+}
+.player-time{
+  font-family:'Sora', sans-serif;
+  font-size:.68rem;
+  color:var(--ink-dim);
+  min-width:30px;
+  text-align:center;
+}
+.progress-track{
+  position:relative;
+  flex:1;
+  height:4px;
+  border-radius:4px;
+  background:rgba(255,255,255,0.14);
+  cursor:pointer;
+}
+.progress-fill{
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:0%;
+  border-radius:4px;
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.progress-handle{
+  position:absolute;
+  top:50%;
+  left:0%;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--ink);
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 8px rgba(255,143,171,0.6);
+  opacity:0;
+  transition:opacity .2s ease;
+}
+.progress-track:hover .progress-handle{ opacity:1; }
+
+@media (max-width:640px){
+  .player-bar{ gap:10px; padding:10px 14px; }
+  .player-left{ flex:0 1 140px; }
+  .player-artist{ display:none; }
+  .player-controls{ gap:10px; }
+  .ctrl.shuffle, .ctrl.repeat{ display:none; }
+}
+
+@media (max-width:520px){
+  .password-bar input{ width:42vw; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="bg-canvas"></div>
+<div id="overlay"></div>
+
+<!-- ===================== SCREEN 1: WELCOME / PROFILE CARD ===================== -->
+<section id="screen-welcome" class="screen active">
+  <h1 class="title" id="welcome-title"></h1>
+
+  <div class="vinyl-stage">
+    <svg class="vinyl-record" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="vinylLabel" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffd1d9"/>
+          <stop offset="55%" stop-color="#ff8fab"/>
+          <stop offset="100%" stop-color="#c9184a"/>
+        </radialGradient>
+      </defs>
+      <circle cx="100" cy="100" r="96" fill="#000"/>
+      <circle cx="100" cy="100" r="90" fill="none" stroke="#ffc2d1" stroke-width="0.5" opacity="0.35"/>
+      <circle cx="100" cy="100" r="82" fill="none" stroke="#ff8fab" stroke-width="0.5" opacity="0.3"/>
+      <circle cx="100" cy="100" r="74" fill="none" stroke="#ffc2d1" stroke-width="0.5" opacity="0.28"/>
+      <circle cx="100" cy="100" r="66" fill="none" stroke="#ff8fab" stroke-width="0.5" opacity="0.26"/>
+      <circle cx="100" cy="100" r="58" fill="none" stroke="#ffc2d1" stroke-width="0.5" opacity="0.24"/>
+      <circle cx="100" cy="100" r="50" fill="none" stroke="#ff8fab" stroke-width="0.5" opacity="0.22"/>
+      <circle cx="100" cy="100" r="42" fill="none" stroke="#ffc2d1" stroke-width="0.5" opacity="0.2"/>
+      <circle cx="100" cy="100" r="26" fill="url(#vinylLabel)" opacity="0.55"/>
+      <circle cx="100" cy="100" r="3" fill="#000"/>
+      <path d="M100 4 A96 96 0 0 1 190 70" fill="none" stroke="#fff" stroke-width="1.2" opacity="0.12" stroke-linecap="round"/>
+    </svg>
+
+    <div class="glow-border">
+      <div class="card">
+        <div class="views" id="views-counter">👁 —</div>
+        <div class="avatar" id="avatar-holder">❤</div>
+        <div class="profile-name"><span id="profile-name"></span><span class="badge-icon">💎</span></div>
+        <div class="profile-bio" id="profile-bio"><span class="caret"></span></div>
+        <div class="badges-row" id="badges-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="password-wrap">
+    <div class="password-bar" id="password-bar">
+      <input id="password-input" type="password" placeholder="password..." autocomplete="off" />
+      <button id="password-submit" aria-label="Enter">➜</button>
+    </div>
+    <div class="hint" id="password-hint"></div>
+    <div class="forgot-hint">If you forgot your password, text your boyfriend! 💌</div>
+  </div>
+</section>
+
+<!-- ===================== SCREEN 2: HEART ===================== -->
+<section id="screen-heart" class="screen">
+  <div class="heart-caption" id="heart-caption">click the heart...</div>
+  <div class="heart-holder" id="heart-holder">
+    <svg viewBox="0 0 32 29">
+      <defs>
+        <linearGradient id="heartGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ffd1d9"/>
+          <stop offset="45%" stop-color="#ff8fab"/>
+          <stop offset="100%" stop-color="#c9184a"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#heartGrad)" d="M23.6,0c-3.4,0-6.3,2.1-7.6,5c-1.3-2.9-4.2-5-7.6-5C3.8,0,0,3.8,0,8.4c0,9.4,16,20.6,16,20.6
+        s16-11.2,16-20.6C32,3.8,28.2,0,23.6,0z"/>
+    </svg>
+  </div>
+  <div class="progress-dots" id="progress-dots"></div>
+</section>
+
+<!-- ===================== SCREEN 3: LETTER ===================== -->
+<section id="screen-letter" class="screen">
+  <div class="paper">
+    <h2 id="letter-date"></h2>
+    <div id="letter-body"></div>
+  </div>
+  <div class="tasks" id="tasks-holder"></div>
+</section>
+
+<!-- ===================== ODTWARZACZ MUZYKI ===================== -->
+<div id="music-player">
+  <div class="player-bar">
+    <div class="player-left">
+      <img class="player-cover" id="player-cover" alt="" />
+      <div class="player-meta">
+        <div class="player-title" id="player-title" title="Open in Spotify"></div>
+        <div class="player-artist" id="player-artist"></div>
+      </div>
+      <button class="player-add" id="player-add" aria-label="Add">+</button>
+    </div>
+    <div class="player-center">
+      <div class="player-controls">
+        <button class="ctrl shuffle" id="ctrl-shuffle" aria-label="Shuffle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3l10 12h5"/><path d="M3 18h3l3.5-4.2"/><path d="M14.5 8.2 18 6h3"/><polyline points="18 3 21 6 18 9"/><polyline points="18 15 21 18 18 21"/></svg>
+        </button>
+        <button class="ctrl prev" id="ctrl-prev" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6z"/><path d="M20 6L10 12l10 6z"/></svg>
+        </button>
+        <button class="ctrl play-pause" id="ctrl-play" aria-label="Play">
+          <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+        </button>
+        <button class="ctrl next" id="ctrl-next" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2z"/><path d="M4 6l10 6-10 6z"/></svg>
+        </button>
+        <button class="ctrl repeat" id="ctrl-repeat" aria-label="Repeat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
+      </div>
+      <div class="player-progress-row">
+        <span class="player-time" id="time-current">0:00</span>
+        <div class="progress-track" id="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+          <div class="progress-handle" id="progress-handle"></div>
+        </div>
+        <span class="player-time" id="time-duration">0:00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden, real Spotify player (controls the actual audio).
+     Deliberately pushed off-screen so only our custom bar above is visible. -->
+<div id="spotify-embed-holder" style="position:fixed; left:-9999px; top:-9999px; width:300px; height:80px;"></div>
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+
+
+<script>
+/* =========================================================
+   SETTINGS — EDIT HERE
+   ========================================================= */
+const CONFIG = {
+
+  // Password to enter the site (upper/lower case doesn't matter)
+  PASSWORD: "lelo",
+
+  // How many times the heart needs to be clicked to move on
+  REQUIRED_HEART_CLICKS: 10,
+
+  // ---- PROFILE CARD ----
+  PROFILE_NAME: "lelo",
+  PROFILE_BIO: "❤ my favorite person in the world ❤",
+  PROFILE_BADGES: ["💎 beloved", "🌙 forever", "✨ the only one"],
+  // Paste a photo link (e.g. from Imgur) to replace the heart with an avatar,
+  // or leave it empty "" to keep the heart.
+  PROFILE_AVATAR: "",
+
+  // ---- FAVORITE SPOTIFY SONG ----
+  // Go to open.spotify.com, find her favorite song, click "Share" -> "Copy song link".
+  // The link will look like: https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp?si=...
+  // Copy only the part after "track/" and before "?" — that's the SPOTIFY_TRACK_ID below.
+  SPOTIFY_TRACK_ID: "3kofbhXJJrHrcBaTstmNvh",
+  // Song length in seconds - used by the player's progress bar
+  // (e.g. 2:25 = 145 seconds). Set it to match the real track.
+  TRACK_DURATION_SECONDS: 145,
+  // Shown until the real data is fetched from Spotify (or if that fails)
+  TRACK_TITLE_FALLBACK: "feelz",
+  TRACK_ARTIST_FALLBACK: "Lil Peep",
+
+  // Date shown above the letter
+  LETTER_DATE: "July 10, 2026",
+
+  // Letter content — write it however you like, a new line = Enter in this text.
+  LETTER_TEXT:
+`My Dearest,
+
+this is the place for your letter. Open the index.html file in any
+text editor, find "LETTER_TEXT" in the code, and replace this
+content with your own words.
+
+You can write as much as you want — the text will fit on its own,
+and it will appear on screen letter by letter, like an old
+typewriter.
+
+Yours,
+[Your name]`,
+
+  // Optional: extra "tasks" / surprises shown below the letter.
+  EXTRA_TASKS: [
+    // { title: "Task 1", text: "Description of what to do." },
+  ],
+};
+/* ========================================================= */
+
+
+// ---------- Screen elements ----------
+const screenWelcome = document.getElementById('screen-welcome');
+const screenHeart = document.getElementById('screen-heart');
+const screenLetter = document.getElementById('screen-letter');
+const overlay = document.getElementById('overlay');
+
+// ---------- Welcome: letter animation ----------
+const welcomeTitle = document.getElementById('welcome-title');
+const welcomeText = "Welcome, lelo";
+[...welcomeText].forEach((ch, i) => {
+  const span = document.createElement('span');
+  span.textContent = ch === " " ? "\u00A0" : ch;
+  span.style.animationDelay = (0.15 + i * 0.045) + "s";
+  welcomeTitle.appendChild(span);
+});
+
+// ---------- Profile card: avatar, name, badges ----------
+if(CONFIG.PROFILE_AVATAR){
+  const av = document.getElementById('avatar-holder');
+  av.textContent = '';
+  const img = document.createElement('img');
+  img.src = CONFIG.PROFILE_AVATAR;
+  av.appendChild(img);
+}
+document.getElementById('profile-name').textContent = CONFIG.PROFILE_NAME;
+
+const badgesRow = document.getElementById('badges-row');
+CONFIG.PROFILE_BADGES.forEach((b, i) => {
+  const pill = document.createElement('span');
+  pill.className = 'badge-pill';
+  pill.textContent = b;
+  pill.style.animationDelay = (0.3 + i * 0.12) + 's';
+  badgesRow.appendChild(pill);
+});
+
+// Typewriter effect for the card bio
+(function typeBio(){
+  const bioEl = document.getElementById('profile-bio');
+  const caret = bioEl.querySelector('.caret');
+  const text = CONFIG.PROFILE_BIO;
+  let i = 0;
+  function step(){
+    if(i < text.length){
+      caret.insertAdjacentText('beforebegin', text[i]);
+      i++;
+      setTimeout(step, 45);
+    }
+  }
+  setTimeout(step, 700);
+})();
+
+// ---------- View counter (local to this browser) ----------
+(function views(){
+  try{
+    const key = 'profileViews';
+    let n = parseInt(localStorage.getItem(key) || '0', 10);
+    n += 1;
+    localStorage.setItem(key, n);
+    document.getElementById('views-counter').textContent = '👁 ' + n.toLocaleString('en-US');
+  }catch(e){
+    document.getElementById('views-counter').textContent = '👁 —';
+  }
+})();
+
+// ---------- Gentle background particles ----------
+(function particles(){
+  const canvas = document.createElement('canvas');
+  canvas.style.position = 'fixed';
+  canvas.style.inset = '0';
+  canvas.style.zIndex = '1';
+  canvas.style.pointerEvents = 'none';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  let w, h, particlesArr = [];
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const COUNT = Math.min(70, Math.floor(w / 22));
+  for(let i=0;i<COUNT;i++){
+    particlesArr.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      r: Math.random()*1.6 + 0.4,
+      vy: -(Math.random()*0.25 + 0.05),
+      vx: (Math.random()-0.5)*0.12,
+      a: Math.random()*0.5 + 0.15,
+      hue: Math.random() > 0.5 ? '255,143,171' : '255,194,209'
+    });
+  }
+
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    particlesArr.forEach(p=>{
+      p.y += p.vy;
+      p.x += p.vx;
+      if(p.y < -10){ p.y = h+10; p.x = Math.random()*w; }
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${p.hue},${p.a})`;
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+    if(!reduced) requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+// ---------- Hearts trailing the cursor ----------
+(function cursorHearts(){
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced) return;
+  let last = 0;
+  window.addEventListener('pointermove', (e) => {
+    const now = performance.now();
+    if(now - last < 55) return;
+    last = now;
+    const heart = document.createElement('div');
+    heart.className = 'trail-heart';
+    heart.textContent = '❤';
+    heart.style.left = e.clientX + 'px';
+    heart.style.top = e.clientY + 'px';
+    heart.style.fontSize = (10 + Math.random()*8) + 'px';
+    heart.style.setProperty('--dx', (Math.random()*36 - 18) + 'px');
+    heart.style.setProperty('--rot', (Math.random()*50 - 25) + 'deg');
+    document.body.appendChild(heart);
+    setTimeout(()=> heart.remove(), 1100);
+  });
+})();
+
+// ---------- Music player ----------
+// Custom player bar (cover, title, progress bar, buttons),
+// styled transparent with rounded corners so it blends
+// into the page background. The real cover and title are fetched from the public
+// Spotify oEmbed. The real SOUND is played through the official
+// Spotify Embed IFrame API (hidden container off-screen) - our bar
+// only sends it commands (play/pause/seek) and displays
+// prawdziwy, aktualny czas odtwarzania.
+// IMPORTANT LIMITATION (on Spotify's side, can't be worked around): without
+// logging into Spotify in this browser, only a
+// 30-second preview will play, same as for any anonymous listener.
+(function musicPlayer(){
+  if(!CONFIG.SPOTIFY_TRACK_ID) return;
+
+  const trackUrl = `https://open.spotify.com/track/${CONFIG.SPOTIFY_TRACK_ID}`;
+  const coverEl = document.getElementById('player-cover');
+  const titleEl = document.getElementById('player-title');
+  const artistEl = document.getElementById('player-artist');
+  const addBtn = document.getElementById('player-add');
+  const playBtn = document.getElementById('ctrl-play');
+  const iconPlay = document.getElementById('icon-play');
+  const iconPause = document.getElementById('icon-pause');
+  const shuffleBtn = document.getElementById('ctrl-shuffle');
+  const repeatBtn = document.getElementById('ctrl-repeat');
+  const progressTrack = document.getElementById('progress-track');
+  const progressFill = document.getElementById('progress-fill');
+  const progressHandle = document.getElementById('progress-handle');
+  const timeCurrentEl = document.getElementById('time-current');
+  const timeDurationEl = document.getElementById('time-duration');
+
+  let durationSec = CONFIG.TRACK_DURATION_SECONDS || 150; // nadpisane prawdziwym czasem, gdy Spotify go poda
+  let currentSec = 0;
+  let playing = false;
+  let controller = null;
+  let controllerReady = false;
+
+  function formatTime(sec){
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + String(s).padStart(2, '0');
+  }
+  function render(){
+    const pct = durationSec ? Math.min(100, (currentSec / durationSec) * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressHandle.style.left = pct + '%';
+    timeCurrentEl.textContent = formatTime(currentSec);
+    timeDurationEl.textContent = formatTime(durationSec);
+  }
+  function setPlayingUI(state){
+    playing = state;
+    iconPlay.style.display = playing ? 'none' : 'block';
+    iconPause.style.display = playing ? 'block' : 'none';
+    playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  }
+
+  playBtn.addEventListener('click', ()=>{
+    if(!controllerReady){ window.open(trackUrl, '_blank', 'noopener'); return; }
+    controller.togglePlay();
+  });
+  document.getElementById('ctrl-prev').addEventListener('click', ()=>{
+    if(!controllerReady) return;
+    controller.seek(0);
+  });
+  document.getElementById('ctrl-next').addEventListener('click', ()=>{
+    if(!controllerReady) return;
+    controller.seek(0);
+    controller.pause();
+  });
+  shuffleBtn.addEventListener('click', ()=> shuffleBtn.classList.toggle('active'));
+  repeatBtn.addEventListener('click', ()=> repeatBtn.classList.toggle('active'));
+
+  progressTrack.addEventListener('click', (e)=>{
+    if(!controllerReady) return;
+    const rect = progressTrack.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    controller.seek(ratio * durationSec);
+  });
+
+  function openTrack(){ window.open(trackUrl, '_blank', 'noopener'); }
+  titleEl.addEventListener('click', openTrack);
+  coverEl.addEventListener('click', openTrack);
+  addBtn.addEventListener('click', openTrack);
+
+  render();
+
+  // Default data (used until/unless the real data is fetched from oEmbed)
+  titleEl.textContent = CONFIG.TRACK_TITLE_FALLBACK || 'Nasza piosenka';
+  artistEl.textContent = CONFIG.TRACK_ARTIST_FALLBACK || '';
+
+  // Fetch the real cover and title from the public Spotify oEmbed
+  fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(trackUrl)}`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      const parts = (data.title || '').split(' - ');
+      if(data.thumbnail_url) coverEl.src = data.thumbnail_url;
+      titleEl.textContent = parts[0] || data.title || titleEl.textContent;
+      artistEl.textContent = parts.slice(1).join(' - ') || artistEl.textContent;
+    })
+    .catch(()=>{ /* keep the default values */ });
+
+  // Hook up real playback via the official Spotify Embed IFrame API
+  window.onSpotifyIframeApiReady = (IFrameAPI) => {
+    const element = document.getElementById('spotify-embed-holder');
+    const options = {
+      uri: `spotify:track:${CONFIG.SPOTIFY_TRACK_ID}`,
+      width: '300',
+      height: '80',
+    };
+    IFrameAPI.createController(element, options, (ctrl)=>{
+      controller = ctrl;
+      controller.addListener('ready', ()=>{
+        controllerReady = true;
+      });
+      controller.addListener('playback_update', (e)=>{
+        const data = e.data || {};
+        if(data.duration){
+          durationSec = data.duration / 1000;
+        }
+        if(typeof data.position === 'number'){
+          currentSec = data.position / 1000;
+        }
+        setPlayingUI(!data.isPaused && !data.isBuffering);
+        render();
+      });
+    });
+  };
+
+  setTimeout(()=>{
+    document.getElementById('music-player').classList.add('visible');
+  }, 1600);
+})();
+
+// ---------- Screen transition (iris wipe) ----------
+function transitionTo(fromEl, toEl){
+  overlay.classList.remove('contract');
+  overlay.classList.add('expand');
+  setTimeout(()=>{
+    fromEl.classList.remove('active');
+    toEl.classList.add('active');
+    overlay.classList.remove('expand');
+    overlay.classList.add('contract');
+    setTimeout(()=>{ overlay.classList.remove('contract'); }, 1250);
+  }, 1200);
+}
+
+// ---------- Screen 1 -> password ----------
+const pwBar = document.getElementById('password-bar');
+const pwInput = document.getElementById('password-input');
+const pwSubmit = document.getElementById('password-submit');
+const pwHint = document.getElementById('password-hint');
+
+function tryPassword(){
+  const val = pwInput.value.trim().toLowerCase();
+  if(val.length === 0) return;
+  if(val === CONFIG.PASSWORD.trim().toLowerCase()){
+    pwHint.textContent = "";
+    transitionTo(screenWelcome, screenHeart);
+  } else {
+    pwHint.textContent = "try again...";
+    pwBar.classList.remove('shake');
+    void pwBar.offsetWidth;
+    pwBar.classList.add('shake');
+  }
+}
+pwSubmit.addEventListener('click', tryPassword);
+pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryPassword(); });
+
+// ---------- Screen 2: heart ----------
+const heartHolder = document.getElementById('heart-holder');
+const heartCaption = document.getElementById('heart-caption');
+const dotsHolder = document.getElementById('progress-dots');
+
+for(let i=0;i<CONFIG.REQUIRED_HEART_CLICKS;i++){
+  const d = document.createElement('span');
+  dotsHolder.appendChild(d);
+}
+const dots = [...dotsHolder.children];
+
+let heartClicks = 0;
+function spawnSparks(x, y){
+  for(let i=0;i<6;i++){
+    const s = document.createElement('div');
+    s.className = 'spark';
+    s.textContent = '♥';
+    const angle = Math.random()*Math.PI*2;
+    const dist = 40 + Math.random()*50;
+    s.style.setProperty('--fly', `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`);
+    s.style.left = x + 'px';
+    s.style.top = y + 'px';
+    document.body.appendChild(s);
+    setTimeout(()=> s.remove(), 1150);
+  }
+}
+
+heartHolder.addEventListener('click', (e) => {
+  if(heartClicks >= CONFIG.REQUIRED_HEART_CLICKS) return;
+  heartClicks++;
+
+  const rect = heartHolder.getBoundingClientRect();
+  spawnSparks(rect.left + rect.width/2, rect.top + rect.height/2);
+
+  heartHolder.classList.remove('pulse');
+  void heartHolder.offsetWidth;
+  heartHolder.classList.add('pulse', 'burst');
+  setTimeout(()=> heartHolder.classList.remove('burst'), 600);
+
+  if(dots[heartClicks-1]) dots[heartClicks-1].classList.add('filled');
+
+  const remaining = CONFIG.REQUIRED_HEART_CLICKS - heartClicks;
+  heartCaption.style.opacity = 0;
+  setTimeout(()=>{
+    heartCaption.textContent = remaining > 0
+      ? `${remaining} more to go...`
+      : `❤`;
+    heartCaption.style.opacity = .85;
+  }, 150);
+
+  if(heartClicks >= CONFIG.REQUIRED_HEART_CLICKS){
+    setTimeout(()=>{
+      buildLetter();
+      transitionTo(screenHeart, screenLetter);
+    }, 700);
+  }
+});
+
+// ---------- Screen 3: letter (typewriter effect) ----------
+function buildLetter(){
+  document.getElementById('letter-date').textContent = CONFIG.LETTER_DATE;
+  const body = document.getElementById('letter-body');
+  body.textContent = '';
+  const caret = document.createElement('span');
+  caret.className = 'letter-caret';
+  body.appendChild(caret);
+
+  const text = CONFIG.LETTER_TEXT;
+  let i = 0;
+  const speed = 22;
+  function typeChar(){
+    if(i < text.length){
+      caret.insertAdjacentText('beforebegin', text[i]);
+      i++;
+      setTimeout(typeChar, speed);
+    } else {
+      caret.remove();
+      buildTasks();
+    }
+  }
+  setTimeout(typeChar, 400);
+}
+
+function buildTasks(){
+  const holder = document.getElementById('tasks-holder');
+  holder.innerHTML = '';
+  CONFIG.EXTRA_TASKS.forEach((task, idx) => {
+    const card = document.createElement('div');
+    card.className = 'task-card';
+    card.style.animationDelay = (idx * 0.15) + 's';
+    card.innerHTML = `<h3>${task.title}</h3><p>${task.text}</p>`;
+    holder.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>
