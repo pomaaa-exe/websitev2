@@ -189,20 +189,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
   align-items:center;
 }
 
-.views{
-  position:absolute;
-  top:14px;
-  right:18px;
-  font-family:'Sora', sans-serif;
-  font-size:.7rem;
-  letter-spacing:.05em;
-  color:var(--ink-dim);
-  display:flex;
-  align-items:center;
-  gap:4px;
-  opacity:.75;
-}
-
 .avatar{
   width:88px;
   height:88px;
@@ -308,6 +294,96 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
 }
 @keyframes letterIn{
   to{ opacity:1; filter:blur(0); transform:translateY(0); }
+}
+
+/* ================= "TOGETHER SINCE" LIVE COUNTER ================= */
+.together-counter{
+  margin-top:24px;
+  max-width:380px;
+  width:100%;
+  padding:20px 18px;
+  border-radius:20px;
+  background:rgba(11,5,9,0.4);
+  border:1px solid rgba(255,143,171,0.18);
+  backdrop-filter:blur(18px) saturate(130%);
+  -webkit-backdrop-filter:blur(18px) saturate(130%);
+  text-align:center;
+  opacity:0;
+  transform:translateY(14px);
+  animation:fadeUp 1s cubic-bezier(.22,1,.36,1) forwards;
+  animation-delay:1.05s;
+}
+.together-label{
+  font-family:'Sora', sans-serif;
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+.together-label .heart-tick{
+  display:inline-block;
+  color:var(--accent);
+  animation:beatPulse 1.6s ease-in-out infinite;
+  filter:drop-shadow(0 0 6px rgba(255,143,171,0.6));
+}
+.together-grid{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  gap:0;
+  flex-wrap:wrap;
+}
+.together-unit{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-width:46px;
+  padding:0 8px;
+}
+.together-unit .num{
+  font-family:'Sora', sans-serif;
+  font-weight:700;
+  font-size:1.55rem;
+  background:linear-gradient(135deg, var(--accent-2), var(--accent), var(--accent-deep));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  line-height:1;
+  display:inline-block;
+}
+.together-unit .num.tick{
+  animation:numberPop .32s cubic-bezier(.22,1,.36,1);
+}
+@keyframes numberPop{
+  0%{ transform:scale(1); }
+  35%{ transform:scale(1.28); }
+  100%{ transform:scale(1); }
+}
+.together-unit .unit-label{
+  margin-top:5px;
+  font-family:'Sora', sans-serif;
+  font-size:.6rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.together-sep{
+  align-self:center;
+  margin-top:-6px;
+  font-family:'Sora', sans-serif;
+  font-size:1.2rem;
+  color:var(--ink-dim);
+  opacity:.3;
+}
+@media (max-width:420px){
+  .together-unit{ min-width:38px; padding:0 5px; }
+  .together-unit .num{ font-size:1.25rem; }
+  .together-sep{ display:none; }
 }
 
 .password-wrap{
@@ -1059,12 +1135,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
 
     <div class="glow-border">
       <div class="card">
-        <div class="views" id="views-counter">👁 —</div>
         <div class="avatar" id="avatar-holder">❤</div>
         <div class="profile-name"><span id="profile-name"></span><span class="badge-icon">💎</span></div>
         <div class="profile-bio" id="profile-bio"><span class="caret"></span></div>
         <div class="badges-row" id="badges-row"></div>
       </div>
+    </div>
+  </div>
+
+  <div class="together-counter">
+    <div class="together-label"><span class="heart-tick">❤</span> Together since <span id="together-date"></span></div>
+    <div class="together-grid">
+      <div class="together-unit"><span class="num" id="tc-years">0</span><span class="unit-label">years</span></div>
+      <span class="together-sep">:</span>
+      <div class="together-unit"><span class="num" id="tc-months">0</span><span class="unit-label">months</span></div>
+      <span class="together-sep">:</span>
+      <div class="together-unit"><span class="num" id="tc-days">0</span><span class="unit-label">days</span></div>
+      <span class="together-sep">:</span>
+      <div class="together-unit"><span class="num" id="tc-hours">00</span><span class="unit-label">hrs</span></div>
+      <span class="together-sep">:</span>
+      <div class="together-unit"><span class="num" id="tc-mins">00</span><span class="unit-label">min</span></div>
+      <span class="together-sep">:</span>
+      <div class="together-unit"><span class="num" id="tc-secs">00</span><span class="unit-label">sec</span></div>
     </div>
   </div>
 
@@ -1224,6 +1316,10 @@ const CONFIG = {
   // or leave it empty "" to keep the heart.
   PROFILE_AVATAR: "",
 
+  // ---- TOGETHER SINCE ----
+  // Format: "YYYY-MM-DD"
+  TOGETHER_SINCE: "2026-07-02",
+
   // ---- FAVORITE SPOTIFY SONG ----
   // Go to open.spotify.com, find her favorite song, click "Share" -> "Copy song link".
   // The link will look like: https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp?si=...
@@ -1302,7 +1398,7 @@ Yours,
     },
     him: {
       username: "twojukochany",
-      displayName: "Ty",
+      displayName: "Pawel",
       passwordHash: "505a8457c837f269180a65f7689cdf72cfe733bc02f4182ce88f9a039f5e4aa5"
     }
   },
@@ -1348,6 +1444,71 @@ CONFIG.PROFILE_BADGES.forEach((b, i) => {
   badgesRow.appendChild(pill);
 });
 
+// ---------- "Together since" live counter ----------
+(function togetherCounter(){
+  const since = new Date(CONFIG.TOGETHER_SINCE + 'T00:00:00');
+  if(isNaN(since.getTime())) return;
+
+  document.getElementById('together-date').textContent =
+    since.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  const elYears = document.getElementById('tc-years');
+  const elMonths = document.getElementById('tc-months');
+  const elDays = document.getElementById('tc-days');
+  const elHours = document.getElementById('tc-hours');
+  const elMins = document.getElementById('tc-mins');
+  const elSecs = document.getElementById('tc-secs');
+
+  function pop(el){
+    el.classList.remove('tick');
+    void el.offsetWidth;
+    el.classList.add('tick');
+  }
+  function setNum(el, value, pad){
+    const text = pad ? String(value).padStart(2, '0') : String(value);
+    if(el.textContent !== text){
+      el.textContent = text;
+      pop(el);
+    }
+  }
+
+  function update(){
+    const now = new Date();
+    if(now < since){
+      setNum(elYears, 0); setNum(elMonths, 0); setNum(elDays, 0);
+      setNum(elHours, 0, true); setNum(elMins, 0, true); setNum(elSecs, 0, true);
+      return;
+    }
+
+    let years = now.getFullYear() - since.getFullYear();
+    let months = now.getMonth() - since.getMonth();
+    let days = now.getDate() - since.getDate();
+    let hours = now.getHours() - since.getHours();
+    let minutes = now.getMinutes() - since.getMinutes();
+    let seconds = now.getSeconds() - since.getSeconds();
+
+    if(seconds < 0){ seconds += 60; minutes--; }
+    if(minutes < 0){ minutes += 60; hours--; }
+    if(hours < 0){ hours += 24; days--; }
+    if(days < 0){
+      const prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+      days += prevMonthLastDay;
+      months--;
+    }
+    if(months < 0){ months += 12; years--; }
+
+    setNum(elYears, years);
+    setNum(elMonths, months);
+    setNum(elDays, days);
+    setNum(elHours, hours, true);
+    setNum(elMins, minutes, true);
+    setNum(elSecs, seconds, true);
+  }
+
+  update();
+  setInterval(update, 1000);
+})();
+
 // Typewriter effect for the card bio
 (function typeBio(){
   const bioEl = document.getElementById('profile-bio');
@@ -1362,19 +1523,6 @@ CONFIG.PROFILE_BADGES.forEach((b, i) => {
     }
   }
   setTimeout(step, 700);
-})();
-
-// ---------- View counter (local to this browser) ----------
-(function views(){
-  try{
-    const key = 'profileViews';
-    let n = parseInt(localStorage.getItem(key) || '0', 10);
-    n += 1;
-    localStorage.setItem(key, n);
-    document.getElementById('views-counter').textContent = '👁 ' + n.toLocaleString('en-US');
-  }catch(e){
-    document.getElementById('views-counter').textContent = '👁 —';
-  }
 })();
 
 // ---------- Gentle background particles ----------
@@ -1871,7 +2019,7 @@ function initChatUI(){
   const otherKey = chatCurrentUserKey === 'her' ? 'him' : 'her';
   const other = CONFIG.CHAT_USERS[otherKey];
 
-  document.getElementById('my-chat-name').textContent = me.displayName;
+  document.getElementById('my-chat-name').textContent = "You";
   document.getElementById('other-chat-name').textContent = other.displayName;
   document.getElementById('my-status-dot').classList.add('online');
 
