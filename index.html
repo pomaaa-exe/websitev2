@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>I love you!!!!</title>
+<title>for Lelo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Special+Elite&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -769,8 +769,251 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
   .ctrl.shuffle, .ctrl.repeat{ display:none; }
 }
 
+/* ================= TOP-RIGHT NAV TABS ================= */
+#top-nav{
+  position:fixed;
+  top:18px;
+  right:18px;
+  z-index:50;
+  display:flex;
+  gap:8px;
+}
+.nav-tab{
+  font-family:'Sora', sans-serif;
+  font-size:.78rem;
+  letter-spacing:.03em;
+  color:var(--ink-dim);
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-radius:50px;
+  padding:8px 18px;
+  cursor:pointer;
+  transition:color .3s ease, border-color .3s ease, transform .3s ease;
+}
+.nav-tab:hover{
+  color:var(--ink);
+  border-color:rgba(255,143,171,0.5);
+  transform:translateY(-1px);
+}
+
+/* ---- back button used on chat screens ---- */
+.back-btn{
+  position:fixed;
+  top:18px;
+  left:18px;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:'Sora', sans-serif;
+  font-size:.78rem;
+  color:var(--ink-dim);
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-radius:50px;
+  padding:8px 16px 8px 12px;
+  cursor:pointer;
+  transition:color .3s ease, border-color .3s ease, transform .3s ease;
+}
+.back-btn:hover{
+  color:var(--ink);
+  border-color:rgba(255,143,171,0.5);
+  transform:translateX(-2px);
+}
+.back-btn svg{ width:14px; height:14px; }
+
+/* ================= CHAT LOGIN SCREEN ================= */
+.chat-login-box{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+  max-width:340px;
+  width:100%;
+}
+.chat-login-box h2{
+  font-family:'Sora', sans-serif;
+  font-weight:600;
+  font-size:1.3rem;
+  color:var(--ink);
+  margin:0;
+  letter-spacing:.02em;
+}
+.chat-login-box p.sub{
+  font-family:'Sora', sans-serif;
+  font-size:.8rem;
+  color:var(--ink-dim);
+  margin:-10px 0 0 0;
+  text-align:center;
+}
+.chat-field{
+  width:100%;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:14px;
+  padding:12px 16px;
+}
+.chat-field input{
+  width:100%;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--ink);
+  font-family:'Sora', sans-serif;
+  font-size:.95rem;
+}
+.chat-field input::placeholder{ color:var(--ink-dim); opacity:.7; }
+.chat-login-submit{
+  border:none;
+  border-radius:50px;
+  padding:12px 30px;
+  font-family:'Sora', sans-serif;
+  font-weight:600;
+  font-size:.85rem;
+  letter-spacing:.03em;
+  color:#fff;
+  background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+  cursor:pointer;
+  transition:transform .3s ease, filter .3s ease;
+}
+.chat-login-submit:hover{ transform:scale(1.03); filter:brightness(1.08); }
+.chat-login-error{
+  min-height:1.1em;
+  font-size:.8rem;
+  color:var(--accent);
+  font-family:'Sora', sans-serif;
+}
+
+/* ================= CHAT SCREEN ================= */
+#screen-chat{
+  padding:90px 16px 20px;
+}
+.chat-wrap{
+  width:min(94vw, 480px);
+  height:min(78vh, 640px);
+  display:flex;
+  flex-direction:column;
+  border-radius:24px;
+  overflow:hidden;
+  background:rgba(11,5,9,0.5);
+  border:1px solid rgba(255,143,171,0.16);
+  backdrop-filter:blur(20px) saturate(130%);
+  -webkit-backdrop-filter:blur(20px) saturate(130%);
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+.chat-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:16px 20px;
+  border-bottom:1px solid rgba(255,143,171,0.12);
+  flex-shrink:0;
+}
+.chat-header .who{
+  font-family:'Sora', sans-serif;
+  font-weight:600;
+  font-size:.95rem;
+  color:var(--ink);
+}
+.status-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#5a5a5a;
+  box-shadow:0 0 0 0 rgba(90,90,90,0);
+  transition:background .3s ease, box-shadow .3s ease;
+}
+.status-dot.online{
+  background:#3ddc84;
+  box-shadow:0 0 8px rgba(61,220,132,0.7);
+}
+.status-text{
+  font-family:'Sora', sans-serif;
+  font-size:.7rem;
+  color:var(--ink-dim);
+}
+.chat-messages{
+  flex:1;
+  overflow-y:auto;
+  padding:18px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.chat-messages::-webkit-scrollbar{ display:none; width:0; height:0; }
+.msg-row{
+  display:flex;
+}
+.msg-row.mine{ justify-content:flex-end; }
+.msg-bubble{
+  max-width:75%;
+  padding:10px 14px;
+  border-radius:16px;
+  font-family:'Sora', sans-serif;
+  font-size:.85rem;
+  line-height:1.4;
+  color:var(--ink);
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+}
+.msg-row.mine .msg-bubble{
+  background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color:#fff;
+  border:none;
+}
+.msg-time{
+  display:block;
+  margin-top:4px;
+  font-size:.62rem;
+  opacity:.65;
+}
+.chat-input-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px;
+  border-top:1px solid rgba(255,143,171,0.12);
+  flex-shrink:0;
+}
+.chat-input-row input{
+  flex:1;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:50px;
+  padding:11px 18px;
+  color:var(--ink);
+  font-family:'Sora', sans-serif;
+  font-size:.9rem;
+  outline:none;
+}
+.chat-input-row input::placeholder{ color:var(--ink-dim); opacity:.7; }
+.chat-send-btn{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:none;
+  flex-shrink:0;
+  background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:transform .3s ease, filter .3s ease;
+}
+.chat-send-btn:hover{ transform:scale(1.06); filter:brightness(1.08); }
+.chat-send-btn svg{ width:16px; height:16px; }
+
 @media (max-width:520px){
   .password-bar input{ width:42vw; }
+  #top-nav{ top:12px; right:12px; }
+  .back-btn{ top:12px; left:12px; }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -782,6 +1025,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
 
 <div id="bg-canvas"></div>
 <div id="overlay"></div>
+
+<!-- ===================== TOP-RIGHT NAV ===================== -->
+<div id="top-nav">
+  <button class="nav-tab" id="nav-chat">Chat</button>
+</div>
 
 <!-- ===================== SCREEN 1: WELCOME / PROFILE CARD ===================== -->
 <section id="screen-welcome" class="screen active">
@@ -826,7 +1074,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
       <button id="password-submit" aria-label="Enter">➜</button>
     </div>
     <div class="hint" id="password-hint"></div>
-    <div class="forgot-hint">If you forgot your password, text your boyfriend!</div>
+    <div class="forgot-hint">If you forgot your password, text your boyfriend! 💌</div>
   </div>
 </section>
 
@@ -858,7 +1106,52 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
   <div class="tasks" id="tasks-holder"></div>
 </section>
 
-<!-- ===================== ODTWARZACZ MUZYKI ===================== -->
+<!-- ===================== SCREEN: CHAT LOGIN ===================== -->
+<section id="screen-chat-login" class="screen">
+  <button class="back-btn" id="back-from-login">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    Back
+  </button>
+  <div class="chat-login-box">
+    <h2>Our private chat</h2>
+    <p class="sub">Log in with your own account to open it</p>
+    <div class="chat-field">
+      <input id="chat-username" type="text" placeholder="username" autocomplete="off" />
+    </div>
+    <div class="chat-field">
+      <input id="chat-password" type="password" placeholder="password" autocomplete="off" />
+    </div>
+    <button class="chat-login-submit" id="chat-login-submit">Log in</button>
+    <div class="chat-login-error" id="chat-login-error"></div>
+  </div>
+</section>
+
+<!-- ===================== SCREEN: CHAT ===================== -->
+<section id="screen-chat" class="screen">
+  <button class="back-btn" id="back-from-chat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    Back
+  </button>
+  <div class="chat-wrap">
+    <div class="chat-header">
+      <span class="status-dot" id="my-status-dot"></span>
+      <span class="who" id="my-chat-name">You</span>
+      <span style="flex:1"></span>
+      <span class="status-text" id="other-status-text">offline</span>
+      <span class="status-dot" id="other-status-dot"></span>
+      <span class="who" id="other-chat-name">Them</span>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input id="chat-message-input" type="text" placeholder="Write something..." autocomplete="off" />
+      <button class="chat-send-btn" id="chat-send-btn" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MUSIC PLAYER ===================== -->
 <div id="music-player">
   <div class="player-bar">
     <div class="player-left">
@@ -904,6 +1197,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar{
      Deliberately pushed off-screen so only our custom bar above is visible. -->
 <div id="spotify-embed-holder" style="position:fixed; left:-9999px; top:-9999px; width:300px; height:80px;"></div>
 <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+
+<!-- Firebase (needed for the real, synced private chat between the two of you).
+     See the CONFIG.FIREBASE_CONFIG section below for setup instructions. -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 
 
 <script>
@@ -960,6 +1258,54 @@ Yours,
   EXTRA_TASKS: [
     // { title: "Task 1", text: "Description of what to do." },
   ],
+
+  // ---- PRIVATE CHAT ----
+  // 1. Go to https://console.firebase.google.com/ -> "Add project" -> give it
+  //    any name -> you can skip Google Analytics -> Create.
+  // 2. In the left menu: Build -> Realtime Database -> Create Database ->
+  //    pick any location -> start in "test mode" for now.
+  // 3. Click the Rules tab of that Realtime Database and paste this, then Publish:
+  //      {
+  //        "rules": {
+  //          "messages": { ".read": true, ".write": true },
+  //          "presence": { ".read": true, ".write": true }
+  //        }
+  //      }
+  // 4. Go to Project settings (gear icon) -> General -> scroll to "Your apps"
+  //    -> click the </> (Web) icon -> register the app (any nickname) ->
+  //    copy the whole "firebaseConfig" object it shows you and paste it below,
+  //    replacing the empty {} .
+  FIREBASE_CONFIG: {
+  apiKey: "AIzaSyBRCQSnM5ki2rnanNQkShTgTV_xtWQz1jY",
+  authDomain: "privatechat-d0d89.firebaseapp.com",
+  databaseURL: "https://privatechat-d0d89-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "privatechat-d0d89",
+  storageBucket: "privatechat-d0d89.firebasestorage.app",
+  messagingSenderId: "751686016325",
+  appId: "1:751686016325:web:8a59cb3ec84660aa2f322c",
+  measurementId: "G-998P5SNECD"
+  },
+
+  // The two chat accounts. Passwords are stored as SHA-256 hashes, not plain
+  // text, so they don't just sit readable in the page source / dev tools.
+  // Current logins (already set up for you):
+  //   her -> username: mojekochanie   password: zawszeRazem26
+  //   him -> username: twojukochany   password: naszaHistoria26
+  // To change a password: open the browser console on this page and run
+  //   await __hashPassword("yourNewPassword")
+  // then paste the result it prints into passwordHash below.
+  CHAT_USERS: {
+    her: {
+      username: "mojekochanie",
+      displayName: "Lelo",
+      passwordHash: "7fd1c90872b85045ee042f68d884a6f2da820f61ddd0951d83ae37a8b8a19aac"
+    },
+    him: {
+      username: "twojukochany",
+      displayName: "Ty",
+      passwordHash: "505a8457c837f269180a65f7689cdf72cfe733bc02f4182ce88f9a039f5e4aa5"
+    }
+  },
 };
 /* ========================================================= */
 
@@ -968,7 +1314,10 @@ Yours,
 const screenWelcome = document.getElementById('screen-welcome');
 const screenHeart = document.getElementById('screen-heart');
 const screenLetter = document.getElementById('screen-letter');
+const screenChatLogin = document.getElementById('screen-chat-login');
+const screenChat = document.getElementById('screen-chat');
 const overlay = document.getElementById('overlay');
+let lastMainScreen = screenWelcome; // used by the chat's back button
 
 // ---------- Welcome: letter animation ----------
 const welcomeTitle = document.getElementById('welcome-title');
@@ -1237,6 +1586,9 @@ function transitionTo(fromEl, toEl){
   setTimeout(()=>{
     fromEl.classList.remove('active');
     toEl.classList.add('active');
+    if(toEl === screenWelcome || toEl === screenHeart || toEl === screenLetter){
+      lastMainScreen = toEl;
+    }
     overlay.classList.remove('expand');
     overlay.classList.add('contract');
     setTimeout(()=>{ overlay.classList.remove('contract'); }, 1250);
@@ -1357,6 +1709,165 @@ function buildTasks(){
     card.style.animationDelay = (idx * 0.15) + 's';
     card.innerHTML = `<h3>${task.title}</h3><p>${task.text}</p>`;
     holder.appendChild(card);
+  });
+}
+
+// ---------- Private chat ----------
+// Passwords are never stored as plain text in this file - only as SHA-256
+// hashes, so casually opening dev tools / view-source doesn't reveal them.
+// NOTE (being upfront about the limits of a no-backend static page): this
+// makes the password non-obvious to a casual visitor, but it isn't
+// unbreakable - someone technical enough could still brute-force a hash or
+// read the client-side check. Real secrecy of the messages themselves comes
+// from this being your own private, unlisted Firebase project that only
+// this page's code knows how to reach - not from the login screen alone.
+async function sha256Hex(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+// Dev helper: open the browser console and run  await __hashPassword("new password")
+// to get a hash you can paste into CONFIG.CHAT_USERS.
+window.__hashPassword = sha256Hex;
+
+function getActiveScreen(){
+  return document.querySelector('.screen.active');
+}
+
+// ---- Nav: open the chat login ----
+document.getElementById('nav-chat').addEventListener('click', ()=>{
+  const from = getActiveScreen();
+  if(from === screenChat || from === screenChatLogin) return;
+  transitionTo(from, screenChatLogin);
+});
+
+// ---- Back buttons ----
+document.getElementById('back-from-login').addEventListener('click', ()=>{
+  transitionTo(screenChatLogin, lastMainScreen);
+});
+document.getElementById('back-from-chat').addEventListener('click', ()=>{
+  transitionTo(screenChat, lastMainScreen);
+});
+
+// ---- Login ----
+let chatCurrentUserKey = null; // "her" or "him"
+
+async function tryChatLogin(){
+  const userVal = document.getElementById('chat-username').value.trim();
+  const passVal = document.getElementById('chat-password').value;
+  const errEl = document.getElementById('chat-login-error');
+  if(!userVal || !passVal){ return; }
+
+  const passHash = await sha256Hex(passVal);
+  let matchedKey = null;
+  for(const key of Object.keys(CONFIG.CHAT_USERS)){
+    const u = CONFIG.CHAT_USERS[key];
+    if(u.username.toLowerCase() === userVal.toLowerCase() && u.passwordHash === passHash){
+      matchedKey = key;
+      break;
+    }
+  }
+
+  if(!matchedKey){
+    errEl.textContent = "wrong username or password...";
+    const box = document.querySelector('.chat-login-box');
+    box.style.animation = 'none';
+    void box.offsetWidth;
+    box.style.animation = 'shake .45s ease';
+    return;
+  }
+
+  errEl.textContent = "";
+  chatCurrentUserKey = matchedKey;
+  initChatUI();
+  transitionTo(screenChatLogin, screenChat);
+}
+document.getElementById('chat-login-submit').addEventListener('click', tryChatLogin);
+document.getElementById('chat-password').addEventListener('keydown', e => { if(e.key === 'Enter') tryChatLogin(); });
+document.getElementById('chat-username').addEventListener('keydown', e => { if(e.key === 'Enter') tryChatLogin(); });
+
+// ---- Chat UI + Firebase wiring ----
+let chatInitialized = false;
+
+function initChatUI(){
+  const me = CONFIG.CHAT_USERS[chatCurrentUserKey];
+  const otherKey = chatCurrentUserKey === 'her' ? 'him' : 'her';
+  const other = CONFIG.CHAT_USERS[otherKey];
+
+  document.getElementById('my-chat-name').textContent = me.displayName;
+  document.getElementById('other-chat-name').textContent = other.displayName;
+  document.getElementById('my-status-dot').classList.add('online');
+
+  if(chatInitialized) return; // Firebase listeners only need to be set up once
+  chatInitialized = true;
+
+  if(!CONFIG.FIREBASE_CONFIG || !CONFIG.FIREBASE_CONFIG.databaseURL){
+    document.getElementById('chat-messages').innerHTML =
+      '<div style="text-align:center;color:var(--ink-dim);font-family:Sora,sans-serif;font-size:.8rem;padding:20px;">Chat isn\'t connected yet - fill in CONFIG.FIREBASE_CONFIG in the code to enable real syncing.</div>';
+    return;
+  }
+
+  firebase.initializeApp(CONFIG.FIREBASE_CONFIG);
+  const db = firebase.database();
+
+  // ---- Presence (online/offline dots) ----
+  const myPresenceRef = db.ref('presence/' + chatCurrentUserKey);
+  const otherPresenceRef = db.ref('presence/' + otherKey);
+  const connectedRef = db.ref('.info/connected');
+
+  connectedRef.on('value', (snap) => {
+    if(snap.val() === true){
+      myPresenceRef.onDisconnect().set({ online: false, last: firebase.database.ServerValue.TIMESTAMP });
+      myPresenceRef.set({ online: true });
+    }
+  });
+
+  otherPresenceRef.on('value', (snap) => {
+    const data = snap.val();
+    const dot = document.getElementById('other-status-dot');
+    const text = document.getElementById('other-status-text');
+    const isOnline = !!(data && data.online);
+    dot.classList.toggle('online', isOnline);
+    text.textContent = isOnline ? 'online' : 'offline';
+  });
+
+  // ---- Messages ----
+  const messagesEl = document.getElementById('chat-messages');
+  const messagesRef = db.ref('messages').limitToLast(200);
+
+  messagesRef.on('child_added', (snap) => {
+    const msg = snap.val();
+    if(!msg) return;
+    const row = document.createElement('div');
+    row.className = 'msg-row' + (msg.sender === chatCurrentUserKey ? ' mine' : '');
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    const textSpan = document.createElement('span');
+    textSpan.textContent = msg.text || '';
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'msg-time';
+    const d = msg.ts ? new Date(msg.ts) : new Date();
+    timeSpan.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    bubble.appendChild(textSpan);
+    bubble.appendChild(timeSpan);
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  });
+
+  function sendMessage(){
+    const input = document.getElementById('chat-message-input');
+    const text = input.value.trim();
+    if(!text) return;
+    messagesRef.ref.push({
+      sender: chatCurrentUserKey,
+      text: text,
+      ts: firebase.database.ServerValue.TIMESTAMP
+    });
+    input.value = '';
+  }
+  document.getElementById('chat-send-btn').addEventListener('click', sendMessage);
+  document.getElementById('chat-message-input').addEventListener('keydown', e => {
+    if(e.key === 'Enter') sendMessage();
   });
 }
 </script>
